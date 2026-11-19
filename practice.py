@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 # 如需绘制损失/准确率曲线，取消下一行注释（需提前安装: pip install matplotlib）
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # ===================== 1. 基础配置 =====================
 # 自动选择设备：有GPU用GPU，没有用CPU
@@ -14,7 +14,7 @@ print(f"当前运行设备: {device}")
 # 超参数（可自行调整感受效果）
 batch_size = 64       # 每批训练的样本数量
 learning_rate = 0.001 # 学习率
-epochs = 5            # 训练总轮数
+epochs = 20            # 训练总轮数
 input_size = 784      # 输入维度：MNIST图片为28×28=784像素
 hidden1_size = 256    # 第一层隐藏层神经元数
 hidden2_size = 128    # 第二层隐藏层神经元数
@@ -140,14 +140,14 @@ if __name__ == "__main__":
         print(f"Epoch [{epoch+1}/{epochs}] | 训练损失: {train_loss:.4f} | 测试准确率: {test_acc:.2f}%")
     
     # 可选：绘制损失和准确率曲线
-    # plt.figure(figsize=(10,4))
-    # plt.subplot(1,2,1)
-    # plt.plot(loss_history)
-    # plt.title("Training Loss")
-    # plt.subplot(1,2,2)
-    # plt.plot(acc_history, color='orange')
-    # plt.title("Test Accuracy")
-    # plt.show()
+    plt.figure(figsize=(10,4))
+    plt.subplot(1,2,1)
+    plt.plot(loss_history)
+    plt.title("Training Loss")
+    plt.subplot(1,2,2)
+    plt.plot(acc_history, color='orange')
+    plt.title("Test Accuracy")
+    plt.show()
     
     # 保存模型权重
     torch.save(model.state_dict(), "three_layer_nn.pth")
