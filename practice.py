@@ -152,3 +152,69 @@ if __name__ == "__main__":
     # 保存模型权重
     torch.save(model.state_dict(), "three_layer_nn.pth")
     print("\n训练完成！模型权重已保存为 three_layer_nn.pth")
+
+
+# ===================== 8. 结果可视化：10 张测试图的预测 vs 真实（新增） =====================
+def show_predictions(model, dataset, device, num=10, cols=5, seed=0, save_path=None):
+    """
+    从测试集里随机挑 num 张图，用窗口画成网格。
+    每张图的标题是「预测 X / 真实 Y」，猜对是绿色，猜错是红色。
+    save_path 不为空时，顺便把这张图存成文件。
+    """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("没有安装 matplotlib，跳过可视化。安装命令: pip install matplotlib")
+        return
+
+    # 让标题里的中文正常显示（不加这两行，中文会变成一堆小方块）
+    plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "DejaVu Sans"]
+    plt.rcParams["axes.unicode_minus"] = False
+
+    model.eval()
+    generator = torch.Generator().manual_seed(seed)
+    indices = torch.randperm(len(dataset), generator=generator)[:num].tolist()
+
+    rows = (num + cols - 1) // cols
+    fig, axes = plt.subplots(rows, cols, figsize=(2.6 * cols, 3.2 * rows))
+    axes = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    fig.suptitle("MNIST 测试集：预测值 / 真实值（绿色=答对，红色=答错）", fontsize=13)
+
+    correct = 0
+    for ax, index in zip(axes, indices):
+        image, label = dataset[index]
+
+        # 模型训练时输入的是「拉平后的 784 维」，所以这里也要 reshape
+        with torch.no_grad():
+            logits = model(image.reshape(1, input_size).to(device))
+            prediction = logits.argmax(dim=1).item()
+
+        correct += int(prediction == label)
+
+        # 画 0~255 的原始像素（比标准化后的张量更适合肉眼看）
+        ax.imshow(dataset.data[index], cmap="gray")
+        ax.set_title(
+            f"预测 {prediction} / 真实 {label}",
+            color="green" if prediction == label else "red",
+            fontsize=11,
+        )
+        ax.axis("off")
+
+    for ax in axes[num:]:      # num 不是 cols 整数倍时，多余的格子藏起来
+        ax.axis("off")
+
+    fig.tight_layout()
+    print(f"\n随机抽了 {num} 张测试图：答对 {correct} 张，答错 {num - correct} 张")
+
+    if save_path:
+        fig.savefig(save_path, dpi=120, bbox_inches="tight")
+        print(f"图片已保存: {save_path}")
+
+    plt.show()   # 弹出窗口（关掉窗口程序才继续往下走）
+
+
+if __name__ == "__main__":
+    # 换一批图：改 seed（0、1、2… 每换一个数就是另外 10 张，同一个数每次结果一样）
+    # 想同时存成图片，把下面这行换成：
+    #     show_predictions(model, test_dataset, device, seed=4, save_path="prediction_preview.png")
+    show_predictions(model, test_dataset, device, num=10, cols=5, seed=4)
