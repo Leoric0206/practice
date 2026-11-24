@@ -9,3 +9,4 @@ data/
 *.ckpt
 *.csv
 .vscode/
+*.bak
