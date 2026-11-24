@@ -14,7 +14,7 @@ print(f"当前运行设备: {device}")
 # 超参数（可自行调整感受效果）
 batch_size = 64       # 每批训练的样本数量
 learning_rate = 0.001 # 学习率
-epochs = 20            # 训练总轮数
+epochs = 10            # 训练总轮数
 input_size = 784      # 输入维度：MNIST图片为28×28=784像素
 hidden1_size = 256    # 第一层隐藏层神经元数
 hidden2_size = 128    # 第二层隐藏层神经元数
